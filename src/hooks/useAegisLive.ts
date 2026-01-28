@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { PlayerData, GameState, Anomaly } from '@/types';
 import { generateRandomAnomaly } from '@/utils/simulation';
 
+const API_BASE_URL = 'https://aegis-c9-backend.onrender.com';
+
 export const useAegisLive = () => {
   const [game, setGame] = useState<GameState>({ winProbability: 52, tempo: 65, anomalies: [] });
   const [players, setPlayers] = useState<PlayerData[]>([
