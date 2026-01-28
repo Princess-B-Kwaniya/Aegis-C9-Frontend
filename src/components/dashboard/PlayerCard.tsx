@@ -11,24 +11,24 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
 
   return (
     <div
-      className={`p-4 rounded-xl bg-white border transition-all duration-300 shadow-sm ${
+      className={`p-3 md:p-4 rounded-xl bg-white border transition-all duration-300 shadow-sm ${
         isCritical ? 'border-neon-orange ring-4 ring-neon-orange/10' : 'border-slate-100 hover:border-cloud9-blue'
       }`}
     >
       <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${isCritical ? 'bg-neon-orange/10 text-neon-orange' : 'bg-cloud9-blue/10 text-cloud9-blue'}`}>
-            <User size={18} />
+        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+          <div className={`p-1.5 md:p-2 rounded-lg shrink-0 ${isCritical ? 'bg-neon-orange/10 text-neon-orange' : 'bg-cloud9-blue/10 text-cloud9-blue'}`}>
+            <User size={16} className="md:w-[18px] md:h-[18px]" />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-900 leading-none mb-1">{player.name}</h3>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{player.role}</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-slate-900 leading-none mb-1 text-sm md:text-base truncate">{player.name}</h3>
+            <p className="text-[9px] md:text-[10px] text-slate-400 uppercase font-bold tracking-widest">{player.role}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-           {isCritical && <AlertTriangle size={12} className="text-neon-orange" />}
+        <div className="flex items-center gap-1 shrink-0">
+           {isCritical && <AlertTriangle size={10} className="md:w-3 md:h-3 text-neon-orange" />}
            <span
-            className={`text-[9px] px-2 py-0.5 rounded-full uppercase font-black ${
+            className={`text-[8px] md:text-[9px] px-1.5 md:px-2 py-0.5 rounded-full uppercase font-black ${
               player.status === 'critical'
                 ? 'bg-neon-orange text-white'
                 : player.status === 'warning'
@@ -44,11 +44,11 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
       <div className="space-y-3">
         <div className="flex justify-between text-xs items-center">
           <div className="flex items-center gap-1.5 text-slate-400">
-            <Zap size={12} className="text-cloud9-blue" />
-            <span className="font-medium">Stress Level</span>
+            <Zap size={11} className="md:w-3 md:h-3 text-cloud9-blue" />
+            <span className="font-medium text-[10px] md:text-xs">Stress Level</span>
           </div>
           <span
-            className={`font-bold ${
+            className={`font-bold text-[10px] md:text-xs ${
               isCritical ? 'text-neon-orange' : 'text-slate-900'
             }`}
           >
@@ -69,12 +69,12 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-50">
           <div className="flex flex-col">
-            <span className="text-[9px] text-slate-400 font-bold uppercase">Impact Score</span>
-            <span className="text-xs font-black text-slate-900">{player.impact}</span>
+            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">Impact Score</span>
+            <span className="text-[10px] md:text-xs font-black text-slate-900">{player.impact}</span>
           </div>
           <div className="flex flex-col text-right">
-            <span className="text-[9px] text-slate-400 font-bold uppercase">Errors</span>
-            <span className={`text-xs font-black ${player.recentErrors > 2 ? 'text-neon-orange' : 'text-slate-900'}`}>{player.recentErrors}</span>
+            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">Errors</span>
+            <span className={`text-[10px] md:text-xs font-black ${player.recentErrors > 2 ? 'text-neon-orange' : 'text-slate-900'}`}>{player.recentErrors}</span>
           </div>
         </div>
       </div>
