@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAegisLive } from "@/hooks/useAegisLive";
 import PlayerCard from "@/components/dashboard/PlayerCard";
 import WinProbChart from "@/components/dashboard/WinProbChart";
@@ -20,6 +20,18 @@ export default function Home() {
     setSessionData({ teamName, opponentName, game: selectedGame });
     setIsStarted(true);
   };
+
+  // Close mobile menu when window is resized to desktop size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) { // lg breakpoint
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!isStarted) {
     return <WelcomePage onStart={handleStart} />;

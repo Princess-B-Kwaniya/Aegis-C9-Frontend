@@ -37,15 +37,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div className={`
+      transform transition-transform duration-300 ease-in-out
       ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
       lg:translate-x-0 
       fixed lg:sticky 
-      top-0 left-0 z-50 
-      transition-all duration-500 ease-in-out 
+      top-0 left-0 z-50 lg:z-auto
       bg-white border-r border-slate-200 
       h-screen flex flex-col 
-      shadow-sm 
-      ${isCollapsed && !isMobileMenuOpen ? 'w-20' : 'w-64'}
+      shadow-xl lg:shadow-sm 
+      ${isCollapsed && !isMobileMenuOpen ? 'lg:w-20' : 'w-64'}
     `}>
       {/* Collapse Toggle - Desktop Only */}
       <button 
