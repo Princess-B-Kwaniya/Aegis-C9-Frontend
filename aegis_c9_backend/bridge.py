@@ -46,26 +46,29 @@ def simulated_live_stats():
 def fetch_aegis_data(series_id="2616372"):
     """
     Fetches live data from GRID API or fallback to simulated data.
-    Refactored for performance with Session management.
+    Uses the provided GRID_API_KEY for authentic connection.
     """
     url = "https://api.grid.gg/central-data/graphql"
-    api_key = os.getenv("GRID_API_KEY")
+    # Prioritize Environment Variable, but fallback to provided key for convenience
+    api_key = os.getenv("GRID_API_KEY", "V3l3eJF14k9nFYZpYLHxVNQzPynQ5M9Uf6DWON4F")
     
-    if not api_key:
-        print("--- AEGIS-C9 | ERROR: API Key is missing! ---")
-        return simulated_live_stats()
-
     headers = {
         "x-api-key": api_key,
         "Content-Type": "application/json"
     }
 
+    # Enhanced query for live series state and telemetry snapshots
     query = """
-    query GetSeries($id: ID!) {
+    query GetLiveSeries($id: ID!) {
       series(id: $id) {
         id
+        status
         teams { 
             baseInfo { name }
+        }
+        liveData {
+          score { home away }
+          events(limit: 5) { type period time }
         }
       }
     }
