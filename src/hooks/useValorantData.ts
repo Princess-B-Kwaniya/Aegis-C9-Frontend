@@ -1,5 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ValorantPlayerData, ValorantGameState } from '@/types/valorant';
+
+// API Base URL - uses environment variable or falls back to localhost for development
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 // Role type matching ValorantPlayerData
 type ValorantRole = 'Duelist' | 'Controller' | 'Sentinel' | 'Initiator';
@@ -270,40 +273,116 @@ const generateGameState = (teamName: string, opponentName: string): ValorantGame
 };
 
 export const useValorantData = (teamName: string = 'Cloud9', opponentName: string = 'Opponent') => {
-  const players = useMemo(() => generatePlayers(teamName), [teamName]);
-  const game = useMemo(() => generateGameState(teamName, opponentName), [teamName, opponentName]);
+  const [players, setPlayers] = useState<ValorantPlayerData[]>(() => generatePlayers(teamName));
+  const [game, setGame] = useState<ValorantGameState>(() => generateGameState(teamName, opponentName));
   const [predictions, setPredictions] = useState<MLPredictions>(() => 
     generateMLPredictions(teamName, opponentName)
   );
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Regenerate predictions when teams change
-  useEffect(() => {
-    setPredictions(generateMLPredictions(teamName, opponentName));
-  }, [teamName, opponentName]);
-
-  // Update predictions periodically to simulate model updates
-  useEffect(() => {
-    const interval = setInterval(() => {
+  // Fetch predictions from backend API
+  const fetchPredictions = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/valorant-predictions?team=${encodeURIComponent(teamName)}&opponent=${encodeURIComponent(opponentName)}`
+      );
+      
+      if (!response.ok) throw new Error('Backend unavailable');
+      
+      const data = await response.json();
+      setIsConnected(true);
+      
+      // Update predictions from backend
+      if (data.prediction) {
+        setPredictions(prev => ({
+          ...prev,
+          winProbability: data.prediction.win_probability,
+          confidence: data.prediction.confidence,
+          prediction: data.prediction.prediction,
+          riskLevel: data.prediction.risk_level,
+          modelAccuracy: data.prediction.model_accuracy,
+          rocAuc: data.prediction.roc_auc,
+          totalSamples: data.prediction.total_samples,
+          modelName: data.prediction.model_name,
+          probabilityHistory: [...prev.probabilityHistory.slice(1), {
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            probability: data.prediction.win_probability
+          }],
+          topFeatures: data.feature_importance?.slice(0, 5) || prev.topFeatures,
+          allFeatures: data.feature_importance || prev.allFeatures,
+        }));
+      }
+      
+      // Update players from backend if available
+      if (data.players && data.players.length > 0) {
+        setPlayers(data.players.map((p: any, idx: number) => ({
+          id: p.id || idx + 1,
+          name: p.name,
+          agent: p.agent,
+          role: p.role as ValorantRole,
+          kills: p.kills,
+          deaths: p.deaths,
+          assists: p.assists,
+          adr: p.adr,
+          hs: p.hs,
+          firstBloods: p.firstBloods,
+          clutches: p.clutches,
+          status: p.status as 'optimal' | 'warning' | 'critical',
+          acs: p.acs,
+          kast: p.kast,
+        })));
+      }
+      
+      // Update game state from backend if available
+      if (data.game) {
+        setGame(prev => ({
+          ...prev,
+          currentRound: data.game.currentRound,
+          teamScore: data.game.teamScore,
+          enemyScore: data.game.enemyScore,
+          currentSide: data.game.currentSide,
+          mapName: data.game.mapName,
+          firstBloods: data.game.firstBloods,
+          clutches: data.game.clutches,
+          aces: data.game.aces,
+        }));
+      }
+    } catch (error) {
+      console.log('Using local predictions (backend unavailable)');
+      setIsConnected(false);
+      // Fall back to local mock data
       setPredictions(prev => {
         const newProb = Math.min(95, Math.max(25, prev.winProbability + (Math.random() * 4 - 2)));
-        const newHistory = [...prev.probabilityHistory.slice(1), {
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          probability: Math.round(newProb * 10) / 10
-        }];
-        
         return {
           ...prev,
           winProbability: newProb,
           confidence: Math.min(95, Math.max(60, prev.confidence + (Math.random() * 2 - 1))),
           prediction: newProb >= 50 ? 'Win' : 'Loss',
           riskLevel: newProb >= 65 ? 'Low' : newProb >= 45 ? 'Medium' : 'High',
-          probabilityHistory: newHistory,
+          probabilityHistory: [...prev.probabilityHistory.slice(1), {
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            probability: newProb
+          }],
         };
       });
-    }, 3000);
+    }
+  }, [teamName, opponentName]);
 
+  // Initial fetch and setup polling
+  useEffect(() => {
+    // Reset to local data when teams change
+    setPlayers(generatePlayers(teamName));
+    setGame(generateGameState(teamName, opponentName));
+    setPredictions(generateMLPredictions(teamName, opponentName));
+    
+    // Fetch from backend
+    fetchPredictions();
+    
+    // Poll for updates every 3 seconds
+    const interval = setInterval(fetchPredictions, 3000);
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [teamName, opponentName, fetchPredictions]);
 
-  return { players, game, predictions };
+  return { players, game, predictions, isConnected };
 };
