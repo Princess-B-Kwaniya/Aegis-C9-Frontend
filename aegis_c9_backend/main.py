@@ -25,11 +25,11 @@ async def get_stats(series_id: str = "2616372"):
     return data
 
 @app.get("/stream-telemetry")
-async def stream_telemetry():
+async def stream_telemetry(series_id: str = "2616372"):
     async def event_generator():
         while True:
             # Fetch latest data
-            data = fetch_aegis_data("2616372")
+            data = fetch_aegis_data(series_id)
             if "players" in data:
                 data["predictions"] = get_live_predictions(data)
             
