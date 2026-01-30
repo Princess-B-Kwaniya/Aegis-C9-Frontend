@@ -27,7 +27,77 @@ export default function ValorantDashboard() {
   }, []);
 
   // Use the hook with team names for team-specific data
-  const { game, players, predictions } = useValorantData(teamName, opponentName);
+  const { game, players, predictions, isConnected } = useValorantData(teamName, opponentName);
+
+  // Export analysis report as JSON
+  const exportAnalysisReport = () => {
+    const report = {
+      metadata: {
+        exportDate: new Date().toISOString(),
+        teamName,
+        opponentName,
+        mapName: game.mapName,
+        currentRound: game.currentRound,
+        score: `${game.teamScore} - ${game.enemyScore}`,
+      },
+      predictions: {
+        winProbability: predictions.winProbability,
+        confidence: predictions.confidence,
+        prediction: predictions.prediction,
+        riskLevel: predictions.riskLevel,
+        modelName: predictions.modelName,
+        modelAccuracy: predictions.modelAccuracy,
+        rocAuc: predictions.rocAuc,
+        totalSamples: predictions.totalSamples,
+      },
+      featureImportance: predictions.allFeatures,
+      gameState: {
+        currentRound: game.currentRound,
+        teamScore: game.teamScore,
+        enemyScore: game.enemyScore,
+        currentSide: game.currentSide,
+        mapName: game.mapName,
+        firstBloods: game.firstBloods,
+        clutches: game.clutches,
+        aces: game.aces,
+      },
+      players: players.map(p => ({
+        name: p.name,
+        agent: p.agent,
+        role: p.role,
+        kills: p.kills,
+        deaths: p.deaths,
+        assists: p.assists,
+        kd: (p.kills / Math.max(1, p.deaths)).toFixed(2),
+        adr: p.adr.toFixed(0),
+        acs: p.acs,
+        hs: p.hs,
+        kast: p.kast,
+        firstBloods: p.firstBloods,
+        clutches: p.clutches,
+        status: p.status,
+      })),
+      teamAverages: {
+        avgKills: (players.reduce((a, p) => a + p.kills, 0) / players.length).toFixed(1),
+        avgDeaths: (players.reduce((a, p) => a + p.deaths, 0) / players.length).toFixed(1),
+        avgACS: (players.reduce((a, p) => a + p.acs, 0) / players.length).toFixed(0),
+        avgADR: (players.reduce((a, p) => a + p.adr, 0) / players.length).toFixed(0),
+        avgHS: (players.reduce((a, p) => a + p.hs, 0) / players.length).toFixed(1),
+        avgKAST: (players.reduce((a, p) => a + p.kast, 0) / players.length).toFixed(1),
+      },
+    };
+
+    // Create and download JSON file
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `VALORANT_Analysis_${teamName}_vs_${opponentName}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   // Close mobile menu when window is resized to desktop size
   useEffect(() => {
@@ -98,11 +168,19 @@ export default function ValorantDashboard() {
                     Aegis-C9 <span className="text-cloud9-blue hidden sm:inline">VALORANT</span>
                   </h1>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-cloud9-blue rounded-full animate-pulse shadow-[0_0_8px_rgba(0,174,239,0.5)]"></span>
-                  <span className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                    {teamName} VS {opponentName} • ML ANALYSIS
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-cloud9-blue rounded-full animate-pulse shadow-[0_0_8px_rgba(0,174,239,0.5)]"></span>
+                    <span className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                      {teamName} VS {opponentName} • ML ANALYSIS
+                    </span>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-slate-200">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
+                      {isConnected ? 'Backend Live' : 'Local Mode'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -240,7 +318,10 @@ export default function ValorantDashboard() {
                      Model analyzed {predictions.totalSamples.toLocaleString()} historical matches. Accuracy: {predictions.modelAccuracy}%. Prediction: <span className="text-cloud9-blue font-bold">{predictions.prediction}</span>
                    </p>
                    <div className="space-y-2">
-                     <button className="w-full bg-cloud9-blue text-white hover:bg-[#009ed9] transition-colors py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-cloud9-blue/20">
+                     <button
+                       onClick={exportAnalysisReport}
+                       className="w-full bg-cloud9-blue text-white hover:bg-[#009ed9] transition-colors py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-cloud9-blue/20 active:scale-95 transition-transform"
+                     >
                        <Download size={12} />
                        Export Analysis Report
                      </button>
