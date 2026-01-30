@@ -9,12 +9,15 @@ import { ValorantSidebar } from "@/components/layout/ValorantSidebar";
 import { Activity, ShieldCheck, Zap, BarChart3, Users, LayoutDashboard, FileText, Download, Menu, Crosshair, Target } from "lucide-react";
 
 export default function ValorantDashboard() {
+  const [mounted, setMounted] = useState(false);
   const [teamName, setTeamName] = useState('Cloud9');
   const [opponentName, setOpponentName] = useState('Opponent');
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Handle hydration - only render after client mount
   useEffect(() => {
+    setMounted(true);
     // Get team names from URL params or localStorage
     const params = new URLSearchParams(window.location.search);
     const team = params.get('team') || localStorage.getItem('valorantTeam') || 'Cloud9';
@@ -37,6 +40,18 @@ export default function ValorantDashboard() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Show loading state until client-side hydration is complete
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen bg-background items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-cloud9-blue border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Loading VALORANT Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background font-sans transition-all duration-500 text-foreground">
