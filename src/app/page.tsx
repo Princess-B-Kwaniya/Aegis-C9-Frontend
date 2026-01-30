@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useAegisLive } from "@/hooks/useAegisLive";
 import PlayerCard from "@/components/dashboard/PlayerCard";
 import WinProbChart from "@/components/dashboard/WinProbChart";
+import SquadMetricsChart from "@/components/dashboard/SquadMetricsChart";
 import TacticalComms from "@/components/dashboard/TacticalComms";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { WelcomePage } from "@/components/layout/WelcomePage";
 import { Activity, ShieldCheck, Zap, BarChart3, Users, LayoutDashboard, FileText, Download, Menu } from "lucide-react";
 
 export default function Home() {
-  const { game, players } = useAegisLive();
+  const { game, players, telemetry } = useAegisLive();
   const [isStarted, setIsStarted] = useState(false);
   const [sessionData, setSessionData] = useState({ teamName: "", opponentName: "", game: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -123,10 +124,30 @@ export default function Home() {
                   <Users size={16} className="text-cloud9-blue" />
                   <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Squad Telemetry</h2>
                 </div>
+                
+                {telemetry?.mie_analysis?.squad_telemetry ? (
+                  <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm mb-4">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase mb-3">Vision vs Gold Score</p>
+                    <SquadMetricsChart data={telemetry.mie_analysis.squad_telemetry} type="vision" />
+                  </div>
+                ) : (
+                  <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm mb-4 animate-pulse">
+                    <div className="h-3 w-20 bg-slate-100 rounded mb-4"></div>
+                    <div className="h-[200px] bg-slate-50 rounded-xl flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-cloud9-blue/30 border-t-cloud9-blue rounded-full animate-spin"></div>
+                        <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Linking Squad...</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-3 md:gap-4">
-                  {players.map((player) => (
-                    <PlayerCard key={player.id} player={player} />
-                  ))}
+                  {players.map((player, idx) => {
+                    const squadMetrics = telemetry?.mie_analysis?.squad_telemetry || [];
+                    const metric = squadMetrics.find(m => m.name === player.name) || squadMetrics[idx];
+                    return <PlayerCard key={player.id} player={player} squadMetric={metric} />;
+                  })}
                 </div>
               </div>
 
@@ -169,14 +190,30 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="p-4 bg-cloud9-blue/5 border border-cloud9-blue/10 rounded-2xl">
-                        <p className="text-[9px] font-bold text-cloud9-blue uppercase mb-1">Status</p>
-                        <p className="text-sm font-black text-cloud9-blue uppercase">Optimal</p>
+                        <p className="text-[9px] font-bold text-cloud9-blue uppercase mb-1">Site Hold</p>
+                        <p className="text-sm font-black text-cloud9-blue uppercase">
+                          {telemetry?.mie_analysis?.probability_metrics?.site_retake_success || '---'}
+                        </p>
                       </div>
                       <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
-                        <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Neural</p>
-                        <p className="text-sm font-black text-blue-500 uppercase">Syncing</p>
+                        <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Obj. Rate</p>
+                        <p className="text-sm font-black text-blue-500 uppercase">
+                          {telemetry?.mie_analysis?.probability_metrics?.baron_contest_rate || '---'}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Clutch Prob</p>
+                        <p className="text-sm font-black text-slate-900 uppercase">
+                          {telemetry?.mie_analysis?.probability_metrics?.clutch_potential || '---'}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Tempo Dev.</p>
+                        <p className="text-sm font-black text-slate-900 uppercase">
+                          {telemetry?.mie_analysis?.probability_metrics?.tempo_deviation || '---'}
+                        </p>
                       </div>
                     </div>
                   </div>

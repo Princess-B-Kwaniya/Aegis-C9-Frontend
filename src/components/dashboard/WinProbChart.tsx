@@ -23,8 +23,19 @@ const WinProbChart = ({ currentProb }: { currentProb: number }) => {
     });
   }, [currentProb]);
 
+  if (data.length === 0) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 animate-pulse">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-cloud9-blue border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Synchronizing Uplink...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-full min-h-[300px] bg-white/50 p-4 rounded-xl">
+    <div className="w-full h-[300px] bg-white/50 p-4 rounded-xl">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />

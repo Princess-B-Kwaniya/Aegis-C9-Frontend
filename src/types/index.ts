@@ -22,3 +22,31 @@ export interface GameState {
   tempo: number;
   anomalies: Anomaly[];
 }
+
+export interface SquadMetric {
+  name: string;
+  kda: string;
+  cs: number;
+  gold_diff: number;
+  vision_score: number;
+}
+
+export interface ProbabilityMetrics {
+  site_retake_success: string;
+  baron_contest_rate: string;
+  clutch_potential: string;
+  tempo_deviation: string;
+}
+
+export interface MieAnalysis {
+  summary: string;
+  squad_telemetry: SquadMetric[];
+  probability_metrics: ProbabilityMetrics;
+  recommendation: string;
+}
+
+export interface TelemetryData {
+  win_prob: number;
+  predictions: any[];
+  mie_analysis: MieAnalysis;
+}

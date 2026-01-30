@@ -24,8 +24,19 @@ const ValorantWinProbChart = ({ probHistory, currentProb }: ValorantWinProbChart
     { time: '12:35', probability: currentProb },
   ];
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center bg-blue-50/30 rounded-2xl border border-dashed border-blue-200 animate-pulse">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-cloud9-blue border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[10px] font-black text-cloud9-blue uppercase tracking-[0.2em]">Initialising ML Engine...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-full min-h-[300px] bg-white/50 p-4 rounded-xl">
+    <div className="w-full h-[300px] bg-white/50 p-4 rounded-xl">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
           <defs>

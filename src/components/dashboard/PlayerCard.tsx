@@ -1,12 +1,13 @@
 import React from 'react';
-import { PlayerData } from '@/types';
-import { User, Zap, AlertTriangle } from 'lucide-react';
+import { PlayerData, SquadMetric } from '@/types';
+import { User, Zap, AlertTriangle, Target, TrendingUp } from 'lucide-react';
 
 interface PlayerCardProps {
   player: PlayerData;
+  squadMetric?: SquadMetric;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({ player, squadMetric }) => {
   const isCritical = player.status === 'critical';
 
   return (
@@ -69,12 +70,18 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-50">
           <div className="flex flex-col">
-            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">Impact Score</span>
-            <span className="text-[10px] md:text-xs font-black text-slate-900">{player.impact}</span>
+            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase italic">
+              {squadMetric?.kda || '0/0/0'}
+            </span>
+            <span className="text-[10px] md:text-xs font-black text-slate-900">{player.impact} Impact</span>
           </div>
           <div className="flex flex-col text-right">
-            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">Errors</span>
-            <span className={`text-[10px] md:text-xs font-black ${player.recentErrors > 2 ? 'text-neon-orange' : 'text-slate-900'}`}>{player.recentErrors}</span>
+            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">
+              {squadMetric ? `G: +${squadMetric.gold_diff}` : 'Errors'}
+            </span>
+            <span className={`text-[10px] md:text-xs font-black ${player.recentErrors > 2 ? 'text-neon-orange' : 'text-slate-900'}`}>
+              {squadMetric ? `V: ${squadMetric.vision_score}` : player.recentErrors}
+            </span>
           </div>
         </div>
       </div>
