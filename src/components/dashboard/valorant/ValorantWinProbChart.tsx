@@ -63,7 +63,7 @@ const ValorantWinProbChart = ({ probHistory, currentProb }: ValorantWinProbChart
             }}
             itemStyle={{ color: '#00aeef', fontWeight: 'bold' }}
             labelStyle={{ color: '#64748b', fontWeight: 'bold', marginBottom: '4px' }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, 'Win Probability']}
+            formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Win Probability']}
           />
           <Area 
             type="monotone" 
