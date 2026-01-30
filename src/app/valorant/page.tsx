@@ -6,6 +6,7 @@ import ValorantPlayerCard from "@/components/dashboard/valorant/ValorantPlayerCa
 import ValorantWinProbChart from "@/components/dashboard/valorant/ValorantWinProbChart";
 import ValorantTacticalComms from "@/components/dashboard/valorant/ValorantTacticalComms";
 import { ValorantSidebar } from "@/components/layout/ValorantSidebar";
+import { SettingsModal } from "@/components/modals/SettingsModal";
 import { Activity, ShieldCheck, Zap, BarChart3, Users, LayoutDashboard, FileText, Download, Menu, Crosshair, Target } from "lucide-react";
 
 export default function ValorantDashboard() {
@@ -14,6 +15,7 @@ export default function ValorantDashboard() {
   const [opponentName, setOpponentName] = useState('Opponent');
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Handle hydration - only render after client mount
   useEffect(() => {
@@ -133,14 +135,17 @@ export default function ValorantDashboard() {
         />
       )}
       
-      <ValorantSidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        teamName={teamName} 
+      <ValorantSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        teamName={teamName}
         onBackToHome={() => window.location.href = '/'}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
+        onSettingsClick={() => setIsSettingsOpen(true)}
       />
+
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       
       <main className="flex-1 p-3 md:p-4 lg:p-6 overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-700">
         <div className="max-w-full mx-auto space-y-4 md:space-y-6">

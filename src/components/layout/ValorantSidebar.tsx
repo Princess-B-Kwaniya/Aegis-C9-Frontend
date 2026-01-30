@@ -8,15 +8,17 @@ interface ValorantSidebarProps {
   onBackToHome?: () => void;
   isMobileMenuOpen?: boolean;
   setIsMobileMenuOpen?: (open: boolean) => void;
+  onSettingsClick?: () => void;
 }
 
-export const ValorantSidebar: React.FC<ValorantSidebarProps> = ({ 
-  activeTab, 
-  setActiveTab, 
-  teamName, 
-  onBackToHome, 
-  isMobileMenuOpen = false, 
-  setIsMobileMenuOpen = () => {} 
+export const ValorantSidebar: React.FC<ValorantSidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  teamName,
+  onBackToHome,
+  isMobileMenuOpen = false,
+  setIsMobileMenuOpen = () => {},
+  onSettingsClick = () => {}
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -109,7 +111,11 @@ export const ValorantSidebar: React.FC<ValorantSidebarProps> = ({
             {(!isCollapsed || isMobileMenuOpen) && <span className="text-sm font-bold uppercase tracking-wide animate-in fade-in duration-300">Exit to Home</span>}
           </button>
         )}
-        <button 
+        <button
+          onClick={() => {
+            onSettingsClick();
+            setIsMobileMenuOpen(false);
+          }}
           title={(isCollapsed && !isMobileMenuOpen) ? "Settings" : ""}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all ${(isCollapsed && !isMobileMenuOpen) ? 'justify-center px-0' : ''}`}
         >
