@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PlayerData, GameState, Anomaly } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export const useAegisLive = () => {
   const [game, setGame] = useState<GameState>({ winProbability: 50, tempo: 50, anomalies: [] });
