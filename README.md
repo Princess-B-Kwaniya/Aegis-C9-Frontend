@@ -11,6 +11,26 @@ An intelligent coaching assistant that provides live ML-driven tactical insights
 
 ---
 
+## 🔄 Hybrid Data Model
+
+Aegis-C9 utilizes a **Hybrid Data Architecture** that combines historical analysis with real-time intelligence:
+
+### 📚 Historical Baseline (Kaggle)
+- **124,500+ professional match samples** from Kaggle datasets
+- Used for training XGBoost ML models with comprehensive feature engineering
+- Provides statistical baselines for win probability calculations
+- Enables pattern recognition across thousands of pro-level games
+
+### ⚡ Real-Time Ingestion (GRID API)
+- **GRID Esports Data API** integration for live match telemetry
+- Real-time player statistics, objectives, and game state updates
+- Live event streaming for tactical insight generation
+- Seamless fallback to simulation when live data unavailable
+
+This hybrid approach ensures **robust predictions** grounded in historical data while maintaining **real-time responsiveness** during live matches.
+
+---
+
 ## ✨ Features
 
 ### 🎯 Real-Time Win Probability
@@ -154,10 +174,11 @@ Aegis-C9-assistant-coach/
 ## 🧠 ML Model Details
 
 ### LoL Predictor (XGBoost)
-- **Training Data**: 124,500 professional match samples
+- **Training Data**: 124,500 professional match samples from [Kaggle LoL Esports Dataset](https://www.kaggle.com/)
 - **Features**: 15 engineered features from raw game stats
 - **Target**: Win/Loss binary classification
 - **Performance**: 91.2% accuracy, 0.945 ROC-AUC
+- **Real-Time Updates**: GRID API provides live game state for prediction refinement
 
 ### Feature Engineering
 ```python
@@ -189,8 +210,18 @@ This project is for educational and demonstration purposes.
 
 ---
 
+## � Data Sources
+
+| Source | Purpose | Data Type |
+|--------|---------|----------|
+| **Kaggle** | Historical baseline & ML training | 124,500+ pro match records |
+| **GRID API** | Real-time match ingestion | Live telemetry & events |
+
+---
+
 ## 🙏 Acknowledgments
 
-- Cloud9 Esports Organization
-- GRID Esports Data API
-- JetBrains (WebStorm, PyCharm, Junie)
+- **Cloud9 Esports Organization** - Inspiration and use case
+- **Kaggle** - Historical esports match datasets for ML training
+- **GRID Esports Data API** - Real-time match data integration
+- **JetBrains** - WebStorm, PyCharm, and Junie AI development tools
